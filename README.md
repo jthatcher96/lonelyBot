@@ -1,2 +1,2 @@
-# lonelyBot
-a very lonely bot
+Things I can control:
+How long the reply is

@@ -3,13 +3,18 @@ var bot = new Bot()
 
 $(function(){
 
-$( "button" ).on( "click", function(event) {
-    event.preventDefault();
-    var statement = $( "input" ).val();
-    bot.addStatement(statement)
-    var reply = bot.reply()
-    $( "button" ).html('')
-    $( "table" ).append("<td>" + reply + " </td>")
+$( document ).keypress(function(event) {
+    // event.preventDefault();
+    if(event.which == 13){
+        var statement = $( "input" ).val();
+        bot.addStatement(statement)
+        var reply = bot.reply()
+        $( "input" ).val('')
+        $( "#top" ).append("<tr><td class='statement'>" + statement + " </td></tr>")
+        $( "#top" ).append("<tr><td class='reply'>" + reply + " </td></tr>")
+        event.preventDefault();
+    }
+
   });
 });
 
@@ -19,8 +24,8 @@ function Bot(){
 };
 
 Bot.prototype.addStatement = function(text){
-
-    var array = text.split(" ")
+    var cleanText = text.replaceAll(",", "");
+    var array = cleanText.split(" ")
     var firstKey = array[0] + " " + array[1]
     if (!this.starters.includes(firstKey)){
         this.starters.push(firstKey)
@@ -45,12 +50,14 @@ Bot.prototype.addStatement = function(text){
         array.shift();
         // console.log(this.starters)
     }
+    localStorage.setItem('dictionary', JSON.stringify(this.dictionary));
 }
 
 Bot.prototype.reply = function(){
     var starter = this.starters[Math.floor(Math.random()*this.starters.length)]
     var reply = starter.split(" ")
     replyLength = 10
+    this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
     
 
     while (reply.length < replyLength){
@@ -59,10 +66,9 @@ Bot.prototype.reply = function(){
         var word = this.getWord(prefix)
         reply.push(word)
     }
-    return reply.toString();
+    var fullReply = reply.toString().replaceAll(","," ");
+    return fullReply
 }
-
-
 
 Bot.prototype.getWord = function(prefix){
     var finalWord = ''
@@ -72,27 +78,32 @@ Bot.prototype.getWord = function(prefix){
         finalWord = this.searchDictionary(prefix);
     
     }
-    return finalWord
+    return finalWord;
 }
 
 Bot.prototype.getRandomWord = function(){
     
-    var keys = Object.keys(this.dictionary)
-    var prefix = keys[Math.floor(Math.random()*keys.length)]
-    var randWord = this.searchDictionary(prefix)
-    return randWord
+    var keys = Object.keys(this.dictionary);
+    var randPrefix = keys[Math.floor(Math.random()*keys.length)];
+    var randWord = this.searchDictionary(randPrefix);
+    return randWord;
 }
 
 Bot.prototype.searchDictionary = function(prefix){
-    var newWord = ''
+    var newWord = '';
     if ( this.dictionary[prefix].length === 1){
-        newWord = this.dictionary[prefix][0]
+        newWord = this.dictionary[prefix][0];
     }else {
-        var poss = this.dictionary[prefix]
-        newWord = poss[Math.floor(Math.random()*poss.length)]
+        var poss = this.dictionary[prefix];
+        newWord = poss[Math.floor(Math.random()*poss.length)];
     }
     return newWord;
 }
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
 
 
 

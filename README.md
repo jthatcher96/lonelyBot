@@ -1,2 +1,3 @@
-Things I can control:
-How long the reply is
+# lonelyBot
+
+lonelyBot uses the markov chain algorithm to create text responses from past submissions.
